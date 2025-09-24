@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Test</title>
+</head>
+<body>
+    <h2>Testing Login System</h2>
+    <div id="result"></div>
+
+    <script src="config.js"></script>
+    <script>
+        // Simulate the login system
+        let users = JSON.parse(localStorage.getItem('chatgpt_users') || '{}');
+
+        // Create the test user "phuha" with password "phuquoc"
+        users['phuha'] = {
+            password: 'phuquoc',
+            createdAt: new Date().toISOString()
+        };
+
+        // Save to localStorage
+        localStorage.setItem('chatgpt_users', JSON.stringify(users));
+
+        // Test login
+        function testLogin(username, password) {
+            if (users[username] && users[username].password === password) {
+                return { success: true, message: `Login successful for ${username}` };
+            } else {
+                return { success: false, message: 'Invalid username or password' };
+            }
+        }
+
+        // Test the credentials
+        const result = testLogin('phuha', 'phuquoc');
+
+        document.getElementById('result').innerHTML = `
+            <p><strong>Test Result:</strong> ${result.message}</p>
+            <p><strong>Status:</strong> ${result.success ? 'PASSED' : 'FAILED'}</p>
+            <p><strong>Users in storage:</strong> ${Object.keys(users).join(', ')}</p>
+            <p><strong>API Key configured:</strong> ${window.CONFIG.OPENAI_API_KEY.substring(0, 10)}...</p>
+        `;
+
+        console.log('Test user created and login tested:', result);
+        console.log('Current users:', users);
+    </script>
+</body>
+</html>

@@ -76,6 +76,9 @@ function handleAuth(e) {
         return;
     }
 
+    // Reload users from localStorage to get latest data
+    users = JSON.parse(localStorage.getItem('chatgpt_users') || '{}');
+
     if (isLoginMode) {
         // Login
         if (users[username] && users[username].password === password) {
@@ -190,26 +193,15 @@ async function sendMessage() {
     scrollToBottom();
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Use local proxy server to avoid CORS issues
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are a helpful assistant. Be concise and helpful in your responses.'
-                    },
-                    {
-                        role: 'user',
-                        content: message
-                    }
-                ],
-                max_tokens: MAX_TOKENS,
-                temperature: TEMPERATURE
+                message: message,
+                apiKey: OPENAI_API_KEY
             })
         });
 
@@ -229,6 +221,12 @@ async function sendMessage() {
 
     } catch (error) {
         console.error('Error:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+
         chatMessages.removeChild(loadingDiv);
 
         let errorMessage = 'Sorry, there was an error processing your request.';
@@ -237,6 +235,10 @@ async function sendMessage() {
             errorMessage = 'API key is invalid. Please check the configuration.';
         } else if (error.message.includes('429')) {
             errorMessage = 'Rate limit exceeded. Please try again later.';
+        } else if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            errorMessage = 'CORS Error: Cannot call OpenAI API directly from browser. You need to deploy this to a server or use a proxy service.';
+        } else if (error.message.includes('403')) {
+            errorMessage = 'Access forbidden. Check if your API key has the required permissions.';
         }
 
         addMessageToChat(errorMessage, 'assistant');

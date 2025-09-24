@@ -1,38 +1,51 @@
 # Private ChatGPT Web App
 
-A simple web application that allows users to create accounts and chat with ChatGPT using your OpenAI API key. Each user has their own chat history that is stored locally and completely separate from others.
+A web application that allows users to create accounts and chat with ChatGPT using your OpenAI API key. Each user has their own chat history that is stored locally and completely separate from others.
 
 ## Features
 
 - User registration and login system
 - Individual chat histories for each user
 - Clean, responsive interface
-- Local storage (no server required)
-- Easy GitHub Pages deployment
+- Express.js server to handle CORS issues
+- Local storage for user data
 
 ## Setup Instructions
 
-### 1. Get Your OpenAI API Key
+### Option 1: Run Locally (Recommended)
 
-1. Go to [OpenAI API](https://platform.openai.com/api-keys)
-2. Create a new API key
-3. Copy the key (starts with `sk-`)
+1. **Get Your OpenAI API Key**
+   - Go to [OpenAI API](https://platform.openai.com/api-keys)
+   - Create a new API key
+   - Copy the key (starts with `sk-`)
 
-### 2. Configure the App
+2. **Configure the App**
+   - Open `config.js`
+   - Replace `YOUR_OPENAI_API_KEY_HERE` with your actual API key
 
-1. Open `config.js`
-2. Replace `YOUR_OPENAI_API_KEY_HERE` with your actual API key:
-   ```javascript
-   OPENAI_API_KEY: 'sk-your-actual-api-key-here',
+3. **Install Dependencies**
+   ```bash
+   npm install
    ```
 
-### 3. Deploy to GitHub Pages
+4. **Run the Server**
+   ```bash
+   npm start
+   ```
 
-1. Create a new GitHub repository
-2. Upload all files to the repository
-3. Go to Settings > Pages
-4. Select "Deploy from a branch" and choose "main"
-5. Your app will be available at: `https://yourusername.github.io/repository-name`
+5. **Open in Browser**
+   - Go to `http://localhost:3000`
+   - Your sister can access it at `http://your-ip-address:3000` on the same network
+
+### Option 2: Deploy to a Server
+
+1. Deploy to platforms like:
+   - Railway.app (free)
+   - Render.com (free)
+   - Heroku
+   - Your own VPS
+
+2. Set your API key in the deployment environment
 
 ## Security Notes
 

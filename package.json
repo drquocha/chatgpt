@@ -1,0 +1,25 @@
+{
+  "name": "private-chatgpt-app",
+  "version": "1.0.0",
+  "description": "A private ChatGPT web application with user authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "chatgpt",
+    "openai",
+    "chat",
+    "private"
+  ],
+  "author": "Generated with Claude Code",
+  "license": "MIT"
+}
