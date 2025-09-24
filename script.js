@@ -193,26 +193,86 @@ async function sendMessage() {
     scrollToBottom();
 
     try {
-        // Use local proxy server to avoid CORS issues
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: message,
-                apiKey: OPENAI_API_KEY
-            })
-        });
+        let response;
+
+        // Check if we're running on a server (has /api/chat endpoint)
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+            try {
+                // Try server proxy first
+                response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        apiKey: OPENAI_API_KEY
+                    })
+                });
+            } catch (proxyError) {
+                console.log('Proxy failed, trying direct API call:', proxyError);
+                // Fallback to direct API call
+                response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful assistant. Be concise and helpful in your responses.'
+                            },
+                            {
+                                role: 'user',
+                                content: message
+                            }
+                        ],
+                        max_tokens: MAX_TOKENS,
+                        temperature: TEMPERATURE
+                    })
+                });
+            }
+        } else {
+            // Running from file:// protocol, try direct API call
+            response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are a helpful assistant. Be concise and helpful in your responses.'
+                        },
+                        {
+                            role: 'user',
+                            content: message
+                        }
+                    ],
+                    max_tokens: MAX_TOKENS,
+                    temperature: TEMPERATURE
+                })
+            });
+        }
 
         // Remove loading indicator
         chatMessages.removeChild(loadingDiv);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API Response:', response.status, errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('API Response:', data);
+
         const botMessage = data.choices[0].message.content;
 
         // Add bot response to chat
